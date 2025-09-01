@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>For My Favorite Person</title>
+  <style>
+    :root{
+      --bg: #0f1020;
+      --card: #17182e;
+      --accent: #ff6ea7;
+      --accent-2:#ffd166;
+      --text: #f6f7fb;
+      --muted:#cfd2ff;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      color:var(--text); background: radial-gradient(1200px 800px at 80% -10%, #2a2050 0%, #141326 40%, var(--bg) 80%);
+      overflow-x:hidden;
+    }
+
+    /* Floating hearts & stars container */
+    .sky{position:fixed; inset:0; pointer-events:none; overflow:hidden;}
+    .heart,.star{position:absolute; opacity:.9; filter: drop-shadow(0 0 6px rgba(255,255,255,.25));}
+    .heart{font-size:18px; animation: floatUp linear infinite;}
+    .star{width:3px; height:3px; background:#fff; border-radius:50%; animation: twinkle ease-in-out infinite;}
+    @keyframes floatUp{ from{ transform: translateY(40vh) scale(0.8) rotate(0deg); opacity:.0 } to{ transform: translateY(-110vh) scale(1.2) rotate(360deg); opacity:1 } }
+    @keyframes twinkle{ 0%,100%{opacity:.15; transform:scale(1)} 50%{opacity:.9; transform:scale(1.7)} }
+
+    /* Layout */
+    .wrap{ max-width: 920px; margin: 0 auto; padding: 24px; }
+    header{ text-align:center; padding: 72px 12px 24px; }
+    .title{ font-size: clamp(28px, 4vw, 48px); letter-spacing: .5px; margin:0 0 8px; }
+    .subtitle{ color:var(--muted); margin:0; font-size: clamp(14px, 1.8vw, 18px); }
+
+    .card{ background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); border: 1px solid rgba(255,255,255,.08); border-radius: 24px; padding: 28px; box-shadow: 0 8px 30px rgba(0,0,0,.35); backdrop-filter: blur(6px); }
+    .hero{ display:grid; gap:16px; align-items:center; }
+
+    .message{ font-size: clamp(16px, 2.2vw, 19px); line-height:1.7; }
+    .cta{ display:flex; justify-content:center; margin-top: 18px; }
+    .btn{
+      appearance:none; border:none; cursor:pointer; padding:14px 20px; border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), #ffa0c4);
+      color:#1b0b14; font-weight:700; letter-spacing:.3px; font-size:16px; transition: transform .2s ease, box-shadow .2s ease;
+      box-shadow: 0 8px 24px rgba(255,110,167,.35);
+    }
+    .btn:hover{ transform: translateY(-2px); box-shadow:0 12px 28px rgba(255,110,167,.45); }
+
+    /* Reveal section */
+    .reveal{ overflow:hidden; max-height:0; transition:max-height .8s ease; }
+    .reveal.open{ max-height: 1200px; }
+
+    .gallery{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:14px; margin-top:14px; }
+    .photo{ position:relative; aspect-ratio: 4 / 3; border-radius: 16px; overflow:hidden; border:1px solid rgba(255,255,255,.1); }
+    .photo img{ width:100%; height:100%; object-fit:cover; display:block; filter:saturate(1.05) contrast(1.03); }
+
+    .poem{ font-size: 18px; line-height:1.8; white-space: pre-line; padding: 12px 0 0; color: var(--muted); }
+
+    /* Quiz */
+    .quiz{ margin-top: 28px; }
+    .q{ margin: 14px 0; padding: 16px; border-radius: 16px; background: rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); }
+    .q h4{ margin:0 0 10px; font-size: 17px; }
+    .q label{ display:flex; align-items:center; gap:10px; margin:8px 0; cursor:pointer; }
+    .q input{ accent-color: var(--accent); }
+
+    .result{ margin-top: 18px; padding: 18px; border-radius: 16px; background: linear-gradient(135deg, rgba(255,110,167,.18), rgba(255,209,102,.18)); border:1px solid rgba(255,255,255,.12); display:none; }
+    .result.show{ display:block; }
+
+    footer{ text-align:center; color: #9aa0ff; padding:40px 0 80px; font-size:13px; opacity:.9; }
+
+    /* Mobile spacing tweak */
+    @media (max-width:520px){
+      header{padding-top:56px}
+      .card{padding:20px}
+    }
+    .gallery {
+      display: flex;
+      justify-content: center; 
+      gap: 10px; 
+    }
+
+    .gallery img {
+      width: 30%; 
+      height: auto; 
+      border-radius: 8px; 
+    }
+  </style>
+</head>
+<body>
+  <!-- Floating hearts & stars inserted by JS into .sky -->
+  <div class="sky" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <header>
+      <h1 class="title">For <span id="herName">Bimika</span> 💖</h1>
+      <p class="subtitle">A little interactive love-letter — from me to you. (You can’t tear a website 😉)</p>
+    </header>
+
+    <section class="card hero">
+      <p class="message">
+        Hey <span class="who">love</span>, I should’ve given you a letter today. I’m sorry I didn’t.
+        So I made you this instead — something that can’t be torn and doesn’t fade. Every second with you
+        teaches me a new way to be grateful. Thank you for your patience, your smile, and the way you make
+        ordinary moments feel like fireworks.
+      </p>
+      <div class="cta">
+        <button id="revealBtn" class="btn">Click Me</button>
+      </div>
+
+      <div id="reveal" class="reveal">
+        <div class="poem">
+          You light up my world with every smile,
+          every laugh makes my heart race a mile.
+          This isn’t paper, so you can’t tear it through —
+          just like my love, it’s built only for you.
+        </div>
+
+        <div class="gallery">
+          <img src="1.jpg" alt="Memory 1">
+          <img src="2.jpg" alt="Memory 2">
+          <img src="3.jpg" alt="Memory 3">
+        </div>
+
+        <div class="quiz">
+          <h3>Mini Quiz: How Well Do You Know Us? ✨</h3>
+
+          <form id="quizForm">
+            <div class="q">
+              <h4>1) Our ideal date?</h4>
+              <label><input type="radio" name="q1" value="a" /> a) a long walk</label>
+              <label><input type="radio" name="q1" value="b" /> b) sit with you</label>
+              <label><input type="radio" name="q1" value="c" /> c) Gaming competition</label>
+            </div>
+
+            <div class="q">
+              <h4>2) The first thing I noticed about you?</h4>
+              <label><input type="radio" name="q2" value="a" /> a) Your character</label>
+              <label><input type="radio" name="q2" value="b" /> b) Your laugh</label>
+              <label><input type="radio" name="q2" value="c" /> c) Your care</label>
+            </div>
+
+            <div class="q">
+              <h4>3) Our secret superpower?</h4>
+              <label><input type="radio" name="q3" value="a" /> a) try different food</label>
+              <label><input type="radio" name="q3" value="b" /> b) try different spots</label>
+              <label><input type="radio" name="q3" value="c" /> c) love each other as we are</label>
+            </div>
+
+            <button type="submit" class="btn">See My Note</button>
+          </form>
+
+          <div id="result" class="result"></div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Made with ♥ just for you. 
+    </footer>
+  </div>
+
+  <script>
+    // === CONFIG: Name & Nickname ===
+    const HER_NAME = "Bimika";
+    const NICKNAME = "love";
+
+    document.getElementById('herName').textContent = HER_NAME;
+    document.querySelector('.who').textContent = NICKNAME;
+
+    // === Floating hearts & stars ===
+    const sky = document.querySelector('.sky');
+    const HEARTS = 24, STARS = 80;
+    function rand(min,max){ return Math.random()*(max-min)+min }
+
+    for(let i=0;i<HEARTS;i++){
+      const h = document.createElement('div');
+      h.className = 'heart'; h.textContent = Math.random()>.5 ? '💖' : '💗';
+      h.style.left = rand(-5, 100)+'vw';
+      h.style.bottom = rand(-10, 30)+'vh';
+      h.style.fontSize = rand(14, 28)+'px';
+      const d = rand(6, 16);
+      h.style.animationDuration = d+'s';
+      h.style.animationDelay = (-1 * rand(0,d))+'s';
+      sky.appendChild(h);
+    }
+    for(let i=0;i<STARS;i++){
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.style.left = rand(0,100)+'%';
+      s.style.top = rand(0,100)+'%';
+      s.style.animationDuration = rand(2,6)+'s';
+      s.style.animationDelay = rand(0,6)+'s';
+      s.style.opacity = Math.random()*0.7+0.1;
+      sky.appendChild(s);
+    }
+
+    // === Reveal handling ===
+    const revealBtn = document.getElementById('revealBtn');
+    const reveal = document.getElementById('reveal');
+    revealBtn.addEventListener('click', () => {
+      reveal.classList.toggle('open');
+      burstHearts();
+      if(reveal.classList.contains('open')){
+        revealBtn.textContent = 'Hide & Seek';
+      } else {
+        revealBtn.textContent = 'Click Me';
+      }
+    });
+
+    // Cute heart burst
+    function burstHearts(){
+      const amount = 18;
+      for(let i=0;i<amount;i++){
+        const b = document.createElement('div');
+        b.textContent = ['💖','💘','💞','💝'][Math.floor(Math.random()*4)];
+        b.style.position='fixed';
+        b.style.left='50%'; b.style.top='52%';
+        b.style.transform='translate(-50%,-50%)';
+        b.style.pointerEvents='none';
+        const dx = (Math.random()-0.5)*240;
+        const dy = (Math.random()-0.5)*220;
+        const dur = 700 + Math.random()*600;
+        b.style.transition = `transform ${dur}ms cubic-bezier(.2,.7,.2,1.1), opacity ${dur}ms linear`;
+        document.body.appendChild(b);
+        requestAnimationFrame(()=>{
+          b.style.opacity='0';
+          b.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(${1+Math.random()})`;
+        });
+        setTimeout(()=>b.remove(), dur+60);
+      }
+    }
+
+    // === Quiz logic ===
+    const quizForm = document.getElementById('quizForm');
+    const result = document.getElementById('result');
+
+    const correct = { q1:'a', q2:'a', q3:'c' };
+
+    quizForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      let score = 0, total = Object.keys(correct).length;
+      for(const key in correct){
+        const chosen = quizForm.querySelector(`input[name="${key}"]:checked`);
+        if(chosen && chosen.value === correct[key]) score++;
+      }
+      const messages = [
+        `Perfect ${score}/${total}! You know me so well — and I love you more for it ♥`,
+        `Score: ${score}/${total}. Almost there! But I love you no matter what ♥`,
+      ];
+      const note = `No matter the score: I choose you — today, tomorrow, always. Thank you for being my peace, my chaos, and my home.`;
+      result.innerHTML = `<p><strong>${messages[ score===total ? 0 : 1 ]}</strong></p><p>${note}</p>`;
+      result.classList.add('show');
+      burstHearts();
+      result.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+  </script>
+</body>
+</html>
